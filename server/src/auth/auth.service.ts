@@ -5,7 +5,13 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
-  login(user: any) {
+  async googleLogin(req: any): Promise<{ accessToken: string; user: any }> {
+    const user = req.user;
+
+    if (!user) {
+      throw new Error('Google login failed: No user information received.');
+    }
+
     const payload = {
       sub: user.googleId,
       email: user.email,

@@ -13,6 +13,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    return payload; // คุณสามารถ return user object ที่จะใช้ใน request.user
+    return payload;
   }
 }
