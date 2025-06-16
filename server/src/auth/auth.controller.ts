@@ -5,11 +5,11 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { AuthService } from './auth.service';
 import { RequestUser } from 'src/shared/types';
 
-@Controller('auth/google')
+@Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get()
+  @Get('google')
   @UseGuards(GoogleAuthGuard)
   googleAuth(): void {
     // เมื่อผู้ใช้เข้า /auth/google
@@ -18,7 +18,7 @@ export class AuthController {
     // ไม่ต้องเขียนอะไรเพิ่มใน googleLogin() เว้นแต่จะ debug
   }
 
-  @Get('callback')
+  @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   async googleAuthCallback(
     @Req() req: Request,
