@@ -43,6 +43,7 @@ export class AuthService {
       sub: user.googleId,
       email: user.email,
       name: user.name,
+      role: user.role,
     };
 
     return {

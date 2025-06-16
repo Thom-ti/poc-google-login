@@ -4,7 +4,12 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
-export type JwtPayload = { sub: string; email: string; name: string };
+export type JwtPayload = {
+  sub: string;
+  email: string;
+  name: string;
+  role: string;
+};
 
 const cookieExtractor = (
   req: Request & { cookies?: Record<string, string> },
@@ -28,7 +33,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload) {
     await Promise.resolve();
     // This payload will be the decrypted token payload you provided when signing the token
-    return { userId: payload.sub, email: payload.email, name: payload.name };
+    return {
+      userId: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      role: payload.role,
+    };
     // return payload;
   }
 }
