@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { AuthService } from './auth.service';
+import { RequestUser } from 'src/shared/types';
 
 @Controller('auth/google')
 export class AuthController {
@@ -23,7 +24,8 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken } = await this.authService.googleLogin(req);
+    const user = req.user as RequestUser;
+    const { accessToken } = await this.authService.googleLogin(user);
 
     // if (!accessToken) {
     //   return res.redirect('http://localhost:4200/...');

@@ -4,12 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
-export type JwtPayload = {
-  sub: string;
-  email: string;
-  name: string;
-  role: string;
-};
+import { JwtPayload } from 'src/shared/types';
 
 const cookieExtractor = (
   req: Request & { cookies?: Record<string, string> },
