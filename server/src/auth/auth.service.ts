@@ -21,12 +21,20 @@ export class AuthService {
     const { googleId, email, name, picture } = req.user;
     let user = await this.userModel.findOne({ email });
 
+    let role: string;
+    if (email.endsWith('hr@myorder.ai')) {
+      role = 'hr';
+    } else {
+      role = 'employee';
+    }
+
     if (!user) {
       user = new this.userModel({
         googleId,
         email,
         name,
         picture,
+        role,
       });
       await user.save();
     }

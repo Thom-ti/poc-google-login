@@ -13,6 +13,12 @@ export class User {
 
   @Prop() // เพิ่ม googleId เข้ามา
   googleId: string;
+
+  @Prop()
+  picture: string;
+
+  @Prop()
+  role: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
