@@ -1,9 +1,9 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { AuthService } from './auth.service';
-import { RequestUser } from 'src/shared/types';
+import { TRequestUser } from 'src/shared/types';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
@@ -12,6 +12,27 @@ export class AuthController {
     private readonly authService: AuthService,
     private config: ConfigService,
   ) {}
+
+  private getCookieOptions(): Partial<CookieOptions> {
+    const isProd = this.config.get<string>('NODE_ENV') === 'production';
+
+    return {
+      httpOnly: true,
+      sameSite: isProd ? 'strict' : 'lax',
+      secure: isProd,
+      maxAge: 3600_000, // 1 ชั่วโมง
+    };
+  }
+
+  private getCookieClearOptions(): Partial<CookieOptions> {
+    const isProd = this.config.get<string>('NODE_ENV') === 'production';
+
+    return {
+      httpOnly: true,
+      sameSite: isProd ? 'strict' : 'lax',
+      secure: isProd,
+    };
+  }
 
   @Get('google')
   @UseGuards(GoogleAuthGuard)
@@ -28,20 +49,19 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = req.user as RequestUser;
-    const { accessToken } = await this.authService.googleLogin(user);
+    const user = req.user as TRequestUser;
+    const { jwt, accessToken, userInfo } =
+      await this.authService.googleLogin(user);
 
-    if (!accessToken) {
+    if (!jwt) {
       return res.redirect('http://localhost:4200/');
     }
 
-    res.cookie('jwt', accessToken, {
-      httpOnly: true,
-      sameSite:
-        this.config.get<string>('NODE_ENV') === 'production' ? 'strict' : 'lax', // ถ้าใช้ HTTPS ต้องเปลี่ยนเป็น 'strict'
-      secure: this.config.get<string>('NODE_ENV') !== 'development', // ต้องเปิดเป็น true ถ้าใช้ HTTPS แม้จะเป็น development
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
+    const cookieOptions = this.getCookieOptions();
+
+    res.cookie('jwt', jwt, cookieOptions);
+    res.cookie('googleAccessToken', accessToken, cookieOptions);
+    res.cookie('userInfo', userInfo, cookieOptions);
 
     return res.redirect('http://localhost:4200/user');
 
@@ -54,12 +74,11 @@ export class AuthController {
 
   @Get('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('jwt', {
-      httpOnly: true,
-      sameSite:
-        this.config.get<string>('NODE_ENV') === 'production' ? 'strict' : 'lax', // ถ้าใช้ HTTPS ต้องเปลี่ยนเป็น 'strict'
-      secure: this.config.get<string>('NODE_ENV') !== 'development', // ต้องเปิดเป็น true ถ้าใช้ HTTPS แม้จะเป็น development
-    });
+    const cookieOptions = this.getCookieClearOptions();
+
+    res.clearCookie('jwt', cookieOptions);
+    res.clearCookie('googleAccessToken', cookieOptions);
+    res.clearCookie('userInfo', cookieOptions);
 
     return { message: 'Logged out' };
   }

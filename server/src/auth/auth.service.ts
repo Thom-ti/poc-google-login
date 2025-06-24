@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { User, UserDocument } from 'src/user/schemas/user.schema';
-import { JwtPayload, RequestUser } from 'src/shared/types';
+import { JwtPayload, TRequestUser } from 'src/shared/types';
 
 @Injectable()
 export class AuthService {
@@ -13,12 +13,12 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
-  async googleLogin(user: RequestUser) {
+  async googleLogin(user: TRequestUser) {
     if (!user) {
-      throw new Error('Google login failed: No user information received.');
+      throw new Error('ไม่พบผู้ใช้งานนี้จาก Google');
     }
 
-    const { googleId, email, name, picture } = user;
+    const { googleId, email, name, picture, accessToken } = user;
     let findUser = await this.userModel.findOne({ email });
 
     let role: string;
@@ -43,11 +43,20 @@ export class AuthService {
       sub: findUser.googleId,
       email: findUser.email,
       name: findUser.name,
+      image: findUser.picture,
       role: findUser.role,
     };
 
     return {
-      accessToken: this.jwtService.sign(payload),
+      jwt: this.jwtService.sign(payload, { expiresIn: '1h' }),
+      accessToken,
+      userInfo: {
+        googleId,
+        email,
+        fullName: name,
+        role,
+        image: picture,
+      },
     };
   }
 }

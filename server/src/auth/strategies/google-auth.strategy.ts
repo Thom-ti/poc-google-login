@@ -35,6 +35,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       displayName,
       picture,
       accessToken,
+      refreshToken,
     };
 
     await Promise.resolve();
