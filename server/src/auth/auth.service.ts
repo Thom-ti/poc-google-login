@@ -5,11 +5,13 @@ import { Model } from 'mongoose';
 
 import { User, UserDocument } from 'src/user/schemas/user.schema';
 import { JwtPayload, TRequestUser } from 'src/shared/types';
+import { EncryptionService } from 'src/shared/encryption.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
+    private readonly encryptionService: EncryptionService,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
@@ -18,7 +20,12 @@ export class AuthService {
       throw new Error('ไม่พบผู้ใช้งานนี้จาก Google');
     }
 
-    const { googleId, email, name, picture, accessToken } = user;
+    const { googleId, email, name, picture, accessToken, refreshToken } = user;
+
+    const encryptedRefreshToken = refreshToken
+      ? this.encryptionService.encrypt(refreshToken)
+      : null;
+
     let findUser = await this.userModel.findOne({ email });
 
     let role: string;
@@ -35,9 +42,13 @@ export class AuthService {
         name,
         picture,
         role,
+        ...(encryptedRefreshToken && { refreshToken: encryptedRefreshToken }),
       });
-      await findUser.save();
+    } else if (encryptedRefreshToken) {
+      findUser.refreshToken = encryptedRefreshToken;
     }
+
+    await findUser.save();
 
     const payload: JwtPayload = {
       sub: findUser.googleId,

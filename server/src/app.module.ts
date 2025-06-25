@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
+import { EncryptionService } from './shared/encryption.service';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -22,8 +24,9 @@ import { UserModule } from './user/user.module';
     }),
     AuthModule,
     UserModule,
+    SharedModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, EncryptionService],
 })
 export class AppModule {}
