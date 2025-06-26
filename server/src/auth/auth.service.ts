@@ -59,7 +59,7 @@ export class AuthService {
     };
 
     return {
-      jwt: this.jwtService.sign(payload, { expiresIn: '1h' }),
+      jwt: this.jwtService.sign(payload, { expiresIn: '8h' }),
       accessToken,
       userInfo: {
         googleId,

@@ -20,7 +20,7 @@ export class AuthController {
       httpOnly: true,
       sameSite: isProd ? 'strict' : 'lax',
       secure: isProd,
-      maxAge: 3600_000, // 1 ชั่วโมง
+      maxAge: 8 * 3600_000, // 1 ชั่วโมง
     };
   }
 

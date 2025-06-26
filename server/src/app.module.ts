@@ -8,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { EncryptionService } from './shared/encryption.service';
 import { SharedModule } from './shared/shared.module';
+import { KnexModule } from './knex/knex.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { SharedModule } from './shared/shared.module';
     AuthModule,
     UserModule,
     SharedModule,
+    KnexModule,
   ],
   controllers: [AppController],
   providers: [AppService, EncryptionService],
