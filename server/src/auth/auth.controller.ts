@@ -13,14 +13,14 @@ export class AuthController {
     private config: ConfigService,
   ) {}
 
-  private getCookieOptions(): Partial<CookieOptions> {
+  private getCookieOptions(durationInHours: number): Partial<CookieOptions> {
     const isProd = this.config.get<string>('NODE_ENV') === 'production';
 
     return {
       httpOnly: true,
       sameSite: isProd ? 'strict' : 'lax',
       secure: isProd,
-      maxAge: 8 * 3600_000, // 1 ชั่วโมง
+      maxAge: durationInHours * 3600_000,
     };
   }
 
@@ -57,11 +57,9 @@ export class AuthController {
       return res.redirect('http://localhost:4200/');
     }
 
-    const cookieOptions = this.getCookieOptions();
-
-    res.cookie('jwt', jwt, cookieOptions);
-    res.cookie('googleAccessToken', accessToken, cookieOptions);
-    res.cookie('userInfo', userInfo, cookieOptions);
+    res.cookie('jwt', jwt, this.getCookieOptions(8));
+    res.cookie('userInfo', userInfo, this.getCookieOptions(8));
+    res.cookie('googleAccessToken', accessToken, this.getCookieOptions(1));
 
     return res.redirect('http://localhost:4200/user');
 
