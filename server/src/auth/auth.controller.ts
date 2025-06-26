@@ -57,8 +57,8 @@ export class AuthController {
       return res.redirect('http://localhost:4200/');
     }
 
-    res.cookie('jwt', jwt, this.getCookieOptions(8));
-    res.cookie('userInfo', userInfo, this.getCookieOptions(8));
+    res.cookie('jwt', jwt, this.getCookieOptions(9));
+    res.cookie('userInfo', userInfo, this.getCookieOptions(9));
     res.cookie('googleAccessToken', accessToken, this.getCookieOptions(1));
 
     return res.redirect('http://localhost:4200/user');
