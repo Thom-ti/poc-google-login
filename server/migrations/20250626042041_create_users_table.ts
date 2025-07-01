@@ -2,9 +2,9 @@ import type { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('users', (table) => {
-    table.uuid('id').primary().notNullable().unique();
+    table.increments('id').primary();
     table
-      .uuid('role_id')
+      .integer('role_id') // ถ้า roles.id ใช้ uuid() แทน increments() => users.role_id ก็ต้องเป็น .uuid('role_id') ไม่ใช่ .integer()
       .notNullable()
       .references('id')
       .inTable('roles')
@@ -12,11 +12,10 @@ export async function up(knex: Knex): Promise<void> {
       .onUpdate('CASCADE');
 
     table.string('googleId', 25).unique().nullable();
-    table.string('fullName', 100).notNullable();
     table.string('email', 50).notNullable();
 
     table.boolean('isActive').notNullable().defaultTo(true);
-    table.boolean('hasSentEmail').notNullable().defaultTo(false);
+    table.integer('hasSentEmail').notNullable().defaultTo(0);
 
     table.text('refreshTokenEncrypted').unique().nullable();
 
